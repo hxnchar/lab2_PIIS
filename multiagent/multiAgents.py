@@ -250,7 +250,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         return worstScore, bestDirection
 
     def getAction(self, gameState: GameState):
-        return self.alphaBeta(0, 0, gameState, -999, 999)[1]
+
+        return self.alphaBeta(0, 0, gameState, float("-inf"), float("inf"))[1]
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
