@@ -171,8 +171,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
         for move in legalMoves:
             successor = gameState.generateSuccessor(agent, move)
             successorScore = self.minimax(nextAgent, depth, successor)[0]
-            worstScore = min(worstScore, successorScore)
-            if worstScore == self.minimax(nextAgent, depth, successor)[0]:
+            if worstScore < successorScore:
+                worstScore = successorScore
                 bestDirection = move
         return worstScore, bestDirection
 
