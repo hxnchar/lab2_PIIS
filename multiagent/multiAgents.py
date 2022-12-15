@@ -206,16 +206,51 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
-    """
-    Your minimax agent with alpha-beta pruning (question 3)
-    """
+    def alphaBeta(self, agent, depth, gameState: GameState, alpha, beta):
+        if gameState.isWin() or gameState.isLose() or depth == self.depth:
+            return self.evaluationFunction(gameState), 0
+
+        legalMoves = gameState.getLegalActions(agent)
+        maxScore = float("-inf")
+        worstScore = float("inf")
+        bestDirection = "Stop"
+
+        if agent == 0:
+            legalMoves = gameState.getLegalActions(agent)
+            for move in legalMoves:
+                successor = gameState.generateSuccessor(agent, move)
+                successorScore = self.alphaBeta(
+                    agent + 1, depth, successor, alpha, beta)[0]
+                if successorScore > maxScore:
+                    maxScore = successorScore
+                    bestDirection = move
+                if alpha < maxScore:
+                    alpha = maxScore
+                if alpha > beta:
+                    break
+            return maxScore, bestDirection
+
+        nextAgent = agent + 1
+        numOfAgents = gameState.getNumAgents()
+        if agent == numOfAgents - 1:
+            nextAgent = 0
+            depth += 1
+
+        for move in legalMoves:
+            successor = gameState.generateSuccessor(agent, move)
+            successorScore = self.alphaBeta(
+                nextAgent, depth, successor, alpha, beta)[0]
+            if worstScore > successorScore:
+                worstScore = successorScore
+                bestDirection = move
+            if beta > worstScore:
+                beta = worstScore
+            if alpha > beta:
+                break
+        return worstScore, bestDirection
 
     def getAction(self, gameState: GameState):
-        """
-        Returns the minimax action using self.depth and self.evaluationFunction
-        """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.alphaBeta(0, 0, gameState, -999, 999)[1]
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
