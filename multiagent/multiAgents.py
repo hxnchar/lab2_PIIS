@@ -250,24 +250,47 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         return worstScore, bestDirection
 
     def getAction(self, gameState: GameState):
-
         return self.alphaBeta(0, 0, gameState, float("-inf"), float("inf"))[1]
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
-    """
-      Your expectimax agent (question 4)
-    """
+    def expectiMax(self, agent, depth, gameState: GameState):
+        if gameState.isWin() or gameState.isLose() or depth == self.depth:
+            return self.evaluationFunction(gameState), 0
+
+        bestCase = float("-inf")
+        bestDirection = "Stop"
+        legalMoves = gameState.getLegalActions(agent)
+        sumOfMinScores = 0
+        numOfChildren = len(legalMoves)
+        numOfAgents = gameState.getNumAgents()
+
+        if agent == 0:
+            legalMoves = gameState.getLegalActions(agent)
+
+            for move in legalMoves:
+                successor = gameState.generateSuccessor(agent, move)
+                successorScore = self.expectiMax(
+                    agent + 1, depth, successor)[0]
+                if successorScore > bestCase:
+                    bestCase = successorScore
+                    bestDirection = move
+            return bestCase, bestDirection
+
+        nextAgent = agent + 1
+        if agent == numOfAgents - 1:
+            nextAgent = 0
+            depth += 1
+
+        for move in legalMoves:
+            successor = gameState.generateSuccessor(agent, move)
+            eachMinScore = self.expectiMax(nextAgent, depth, successor)[0]
+            sumOfMinScores += eachMinScore
+        expectedMin = sumOfMinScores / numOfChildren
+        return expectedMin, 0
 
     def getAction(self, gameState: GameState):
-        """
-        Returns the expectimax action using self.depth and self.evaluationFunction
-
-        All ghosts should be modeled as choosing uniformly at random from their
-        legal moves.
-        """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.expectiMax(0, 0, gameState)[1]
 
 
 def betterEvaluationFunction(currentGameState: GameState):
